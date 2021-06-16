@@ -97,3 +97,47 @@ class StockTradingEnv():
             # cumulative_return_rate
             self.episode_return = next_total_asset / self.initial_account
         return state, reward, done, None
+
+    
+    def draw_cumulative_return(self, args, _torch) -> list:
+        state_dim = self.state_dim
+        action_dim = self.action_dim
+
+        agent = args.agent
+        net_dim = args.net_dim
+        cwd = args.cwd
+
+        agent.init(net_dim, state_dim, action_dim)
+        agent.save_load_model(cwd=cwd, if_save=False)
+        act = agent.act
+        device = agent.device
+        state = self.reset()
+        episode_returns = list()  # the cumulative_return / initial_account
+        stock_returns = list()# the cumulative_return / initial_account
+        with _torch.no_grad():
+            for i in range(self.max_step):
+                if i == 0:
+                    init_price = float(state[4])
+                s_tensor = _torch.as_tensor((state,), device=device)
+                a_tensor = act(s_tensor)
+                action = a_tensor.cpu().numpy()[0]  # not need detach(), because with torch.no_grad() outside
+                state, reward, done, _ = self.step(action)
+                total_asset = self.account + (self.prices * self.stocks).sum()
+                episode_return = total_asset / self.initial_account
+                episode_returns.append(episode_return)
+                stock_return = (state[4]/init_price)
+                stock_returns.append(stock_return)
+                if done:
+                    break
+
+        import matplotlib.pyplot as plt
+        plt.plot(episode_returns,label='agent_return')
+        plt.plot(stock_returns, color = 'yellow')
+        plt.grid()
+        plt.title('cumulative return')
+        plt.xlabel('day')
+        plt.xlabel('multiple of initial_account')
+        plt.legend()
+        # plt.show()
+        plt.savefig(f'{cwd}/cumulative_return.jpg')
+        return episode_returns

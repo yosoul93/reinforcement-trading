@@ -313,7 +313,7 @@ class AgentDDPG(AgentBase):
 
     def select_action(self, state) -> np.ndarray:
         states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
-        action = self.act(states)[0].cpu().numpy()
+        action = self.act(states)[0].detach().cpu().numpy()
         return (action + self.ou_noise()).clip(-1, 1)
 
     def update_net(self, buffer, target_step, batch_size, repeat_times) -> (float, float):
@@ -385,7 +385,7 @@ class AgentTD3(AgentDDPG):
         states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
         action = self.act(states)[0]
         action = (action + torch.randn_like(action) * self.explore_noise).clamp(-1, 1)
-        return action.cpu().numpy()
+        return action.detach().cpu().numpy()
 
     def update_net(self, buffer, target_step, batch_size, repeat_times) -> (float, float):
         buffer.update_now_len_before_sample()
@@ -536,7 +536,7 @@ class AgentSAC(AgentBase):
     def select_action(self, state) -> np.ndarray:
         states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
         action = self.act.get_action(states)[0]
-        return action.cpu().numpy()
+        return action.detach().cpu().numpy()
 
     def update_net(self, buffer, target_step, batch_size, repeat_times) -> (float, float):
         buffer.update_now_len_before_sample()

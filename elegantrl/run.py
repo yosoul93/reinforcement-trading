@@ -17,7 +17,8 @@ class Arguments:
         self.cwd = None  # current work directory. cwd is None means set it automatically
         self.env = env  # the environment for training
         self.env_eval = None  # the environment for evaluating
-        self.gpu_id = ",".join(map(str, gpu_id))  # choose the GPU for running. gpu_id is None means set it automatically
+        # self.gpu_id = ",".join(map(str, gpu_id))
+        self.gpu_id = gpu_id  # choose the GPU for running. gpu_id is None means set it automatically
 
         '''Arguments for training (off-policy)'''
         self.net_dim = 2 ** 8  # the network width
@@ -57,19 +58,19 @@ class Arguments:
         if isinstance(self.env, str) or not hasattr(self.env, 'env_name'):
             raise RuntimeError('\n| What is env.env_name? use env=PreprocessEnv(env). It is a Wrapper.')
 
-        # '''set gpu_id automatically'''
-        # if self.gpu_id is None:  # set gpu_id automatically
-        #     import sys
-        #     self.gpu_id = sys.argv[-1][-4]
-        # else:
-        #     self.gpu_id = str(self.gpu_id)
-        # if not self.gpu_id.isdigit():  # set gpu_id as '0' in default
-        #     self.gpu_id = '0'
+        '''set gpu_id automatically'''
+        if self.gpu_id is None:  # set gpu_id automatically
+            import sys
+            self.gpu_id = sys.argv[-1][-4]
+        else:
+            self.gpu_id = str(self.gpu_id)
+        if not self.gpu_id.isdigit():  # set gpu_id as '0' in default
+            self.gpu_id = '0'
 
         '''set cwd automatically'''
         if self.cwd is None:
             agent_name = self.agent.__class__.__name__
-            self.cwd = f'./{agent_name}/{self.env.env_name}_{self.gpu_id[0]}'
+            self.cwd = f'./{agent_name}/{self.env.env_name}_{self.gpu_id}'
 
         if if_main:
             print(f'| GPU id: {self.gpu_id}, cwd: {self.cwd}')
@@ -83,7 +84,7 @@ class Arguments:
             os.makedirs(self.cwd, exist_ok=True)
 
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-        os.environ['CUDA_VISIBLE_DEVICES'] = self.gpu_id
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu_id)
         torch.set_num_threads(self.num_threads)
         torch.set_default_dtype(torch.float32)
         torch.manual_seed(self.random_seed)

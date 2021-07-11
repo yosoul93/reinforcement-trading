@@ -345,7 +345,7 @@ class SharedDPG(nn.Module):  # DPG means deterministic policy gradient
     @staticmethod
     def add_noise(a, noise_std):
         a_temp = torch.normal(a, noise_std)
-        mask = torch.tensor((a_temp < -1.0) + (a_temp > 1.0), dtype=torch.float32).cuda()
+        mask = torch.tensor((a_temp < -1.0) + (a_temp > 1.0), dtype=torch.float64).cuda()
 
         noise_uniform = torch.rand_like(a)
         a_noise = noise_uniform * mask + a_temp * (-mask + 1)

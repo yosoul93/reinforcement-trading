@@ -43,7 +43,7 @@ class AgentBase:
         :array state: state.shape==(state_dim, )
         :return array action: action.shape==(action_dim, ), (action.min(), action.max())==(-1, +1)
         """
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         action = self.act(states)[0]
         return action.cpu().numpy()
 
@@ -145,7 +145,7 @@ class AgentDQN(AgentBase):
         if rd.rand() < self.explore_rate:  # epsilon-greedy
             a_int = rd.randint(self.action_dim)  # choosing action randomly
         else:
-            states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+            states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
             action = self.act(states)[0]
             a_int = action.argmax(dim=0).cpu().numpy()
         return a_int
@@ -231,7 +231,7 @@ class AgentDoubleDQN(AgentDQN):
         self.get_obj_critic = self.get_obj_critic_per if if_per else self.get_obj_critic_raw
 
     def select_action(self, state) -> int:  # for discrete action space
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         actions = self.act(states)
         if rd.rand() < self.explore_rate:  # epsilon-greedy
             action = self.softmax(actions)[0]
@@ -312,7 +312,7 @@ class AgentDDPG(AgentBase):
             self.get_obj_critic = self.get_obj_critic_raw
 
     def select_action(self, state) -> np.ndarray:
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         action = self.act(states)[0].detach().cpu().numpy()
         return (action + self.ou_noise()).clip(-1, 1)
 
@@ -382,7 +382,7 @@ class AgentTD3(AgentDDPG):
             self.get_obj_critic = self.get_obj_critic_raw
 
     def select_action(self, state) -> np.ndarray:
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         action = self.act(states)[0]
         action = (action + torch.randn_like(action) * self.explore_noise).clamp(-1, 1)
         return action.detach().cpu().numpy()
@@ -516,7 +516,7 @@ class AgentSAC(AgentBase):
     def init(self, net_dim, state_dim, action_dim, if_per=False):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_entropy *= np.log(action_dim)
-        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float32,
+        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float64,
                                       requires_grad=True, device=self.device)  # trainable parameter
         self.alpha_optimizer = torch.optim.Adam((self.alpha_log,), self.learning_rate)
 
@@ -534,7 +534,7 @@ class AgentSAC(AgentBase):
             self.get_obj_critic = self.get_obj_critic_raw
 
     def select_action(self, state) -> np.ndarray:
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         action = self.act.get_action(states)[0]
         return action.detach().cpu().numpy()
 
@@ -602,7 +602,7 @@ class AgentModSAC(AgentSAC):  # Modified SAC using reliable_lambda and TTUR (Two
     def init(self, net_dim, state_dim, action_dim, if_per=False):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_entropy *= np.log(action_dim)
-        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float32,
+        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float64,
                                       requires_grad=True, device=self.device)  # trainable parameter
         self.alpha_optimizer = torch.optim.Adam((self.alpha_log,), self.learning_rate)
 
@@ -671,7 +671,7 @@ class AgentSharedSAC(AgentSAC):  # Integrated Soft Actor-Critic
     def init(self, net_dim, state_dim, action_dim, if_per=False):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.target_entropy *= np.log(action_dim)
-        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float32,
+        self.alpha_log = torch.tensor((-np.log(action_dim) * np.e,), dtype=torch.float64,
                                       requires_grad=True, device=self.device)  # trainable parameter
 
         self.act = SharedSPG(net_dim, state_dim, action_dim).to(self.device)
@@ -693,7 +693,7 @@ class AgentSharedSAC(AgentSAC):  # Integrated Soft Actor-Critic
             self.get_obj_critic = self.get_obj_critic_raw
 
     def select_action(self, state) -> np.ndarray:
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach_()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach_()
         action = self.act.get_noise_action(states)[0]
         return action.cpu().numpy()
 
@@ -774,7 +774,7 @@ class AgentPPO(AgentBase):
         :return array action: state.shape==(action_dim, )
         :return array noise: noise.shape==(action_dim, ), the noise
         """
-        states = torch.as_tensor((state,), dtype=torch.float32, device=self.device).detach()
+        states = torch.as_tensor((state,), dtype=torch.float64, device=self.device).detach()
         actions, noises = self.act.get_action_noise(states)
         return actions[0].detach().cpu().numpy(), noises[0].detach().cpu().numpy()  # todo remove detach()
 
@@ -852,7 +852,7 @@ class AgentPPO(AgentBase):
         :return torch.Tensor buf_r_sum:      buf_r_sum.shape     ==(buf_len, 1)
         :return torch.Tensor buf_advantage:  buf_advantage.shape ==(buf_len, 1)
         """
-        buf_r_sum = torch.empty(buf_len, dtype=torch.float32, device=self.device)  # reward sum
+        buf_r_sum = torch.empty(buf_len, dtype=torch.float64, device=self.device)  # reward sum
         pre_r_sum = 0  # reward sum of previous step
         for i in range(buf_len - 1, -1, -1):
             buf_r_sum[i] = buf_reward[i] + buf_mask[i] * pre_r_sum
@@ -871,8 +871,8 @@ class AgentPPO(AgentBase):
         :return torch.Tensor buf_r_sum:      buf_r_sum.shape     ==(buf_len, 1)
         :return torch.Tensor buf_advantage:  buf_advantage.shape ==(buf_len, 1)
         """
-        buf_r_sum = torch.empty(buf_len, dtype=torch.float32, device=self.device)  # old policy value
-        buf_advantage = torch.empty(buf_len, dtype=torch.float32, device=self.device)  # advantage value
+        buf_r_sum = torch.empty(buf_len, dtype=torch.float64, device=self.device)  # old policy value
+        buf_advantage = torch.empty(buf_len, dtype=torch.float64, device=self.device)  # advantage value
 
         pre_r_sum = 0  # reward sum of previous step
         pre_advantage = 0  # advantage value of previous step
@@ -922,8 +922,8 @@ class AgentSharedPPO(AgentPPO):
             buf_value = torch.cat([self.cri(buf_state[i:i + bs]) for i in range(0, buf_state.size(0), bs)], dim=0)
             buf_logprob = -(buf_noise.pow(2).__mul__(0.5) + self.act.a_std_log + self.act.sqrt_2pi_log).sum(1)
 
-            buf_r_sum = torch.empty(buf_len, dtype=torch.float32, device=self.device)  # old policy value
-            buf_advantage = torch.empty(buf_len, dtype=torch.float32, device=self.device)  # advantage value
+            buf_r_sum = torch.empty(buf_len, dtype=torch.float64, device=self.device)  # old policy value
+            buf_advantage = torch.empty(buf_len, dtype=torch.float64, device=self.device)  # advantage value
 
             pre_r_sum = 0  # reward sum of previous step
             pre_advantage = 0  # advantage value of previous step

@@ -56,7 +56,7 @@ def get_video_to_watch_gym_render():
         print(i) if i % 128 == 0 else None
         for j in range(1):
             if agent is not None:
-                s_tensor = torch.as_tensor((state,), dtype=torch.float32, device=device)
+                s_tensor = torch.as_tensor((state,), dtype=torch.float64, device=device)
                 a_tensor = agent.act(s_tensor)
                 action = a_tensor.detach().cpu().numpy()[0]  # if use 'with torch.no_grad()', then '.detach()' not need.
             else:

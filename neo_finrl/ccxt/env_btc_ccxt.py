@@ -19,12 +19,11 @@ class BitcoinEnv:  # custom env
         self.gamma = gamma
         data_ary = processed_ary
 
-        self.split_test_len = int(data_ary.shape[0]*0.95)
+        N = data_ary.shape[0]
+        self.split_train_len = int(N*0.86)
+        self.split_test_len = int(N*0.99)
 
-        # self.ary_train = data_ary[:self.split_test_len]
-        # self.ary_valid = data_ary[self.split_test_len:]
-        
-        self.ary_train, self.ary_valid, self.ary_test = np.split(data_ary, [ int(len(data_ary)*0.8), int(len(data_ary)*0.95)])
+        self.ary_train, self.ary_valid, self.ary_test = np.split(data_ary, [self.split_train_len, self.split_test_len])
 
         if if_train:
             self.ary = self.ary_train
@@ -48,12 +47,10 @@ class BitcoinEnv:  # custom env
 
         '''env information'''
         self.env_name = 'BitcoinEnv'
-        # self.state_dim = 15
-        # self.state_dim = data_ary.shape[1]+2
         self.state_dim = data_ary.shape[1]+2
         self.action_dim = 3
         self.if_discrete = True
-        self.target_return = 14.8 #1.09 # 1.25  # convergence 1.5
+        self.target_return = 20 # 1.25  # convergence 1.5
         self.max_step = self.ary.shape[0]
 
 
@@ -67,24 +64,24 @@ class BitcoinEnv:  # custom env
         self.day_npy = self.ary[self.day]
         self.day += 1
 
-        state = np.hstack((self.account * 2 ** -16, self.day_npy * 2 ** -8, self.stocks * 2 ** -12,)).astype(np.float32)
+        state = np.hstack((self.account * 2 ** -16, self.day_npy * 2 ** -8, self.stocks * 2 ** -12,)).astype(np.float64)
         return state
 
     def step(self, action) -> (np.ndarray, float, bool, None):
+        # 1 buy, -1 sell, 0 hold
         if action == 0:
             stock_action = 0
         elif action == 1:
             stock_action = 1
         elif action == 2:
             stock_action = -1
-        """bug or sell stock"""
-        # print(self.day_npy)
-        # close price
+        """buy or sell stock"""
         adj = self.day_npy[3]
-        if stock_action == 1:  
+        if stock_action == 1:  # buy_stock
             if self.stocks <= 0.0:
                 available_amount = self.total_asset / adj
-                delta_stock = 0.8*available_amount - self.stocks
+                # delta_stock = 0.8*available_amount - self.stocks
+                delta_stock = available_amount - self.stocks
                 self.account -= adj * delta_stock * (1 + self.transaction_fee_percent)
                 self.stocks += delta_stock
         elif stock_action == 0: 
@@ -96,10 +93,11 @@ class BitcoinEnv:  # custom env
                 else:
                     self.account += adj * delta_stock * (1 + self.transaction_fee_percent)
                     self.stocks = 0 
-        else:
+        else: # sell_stock
             if self.stocks >= 0.0:
                 available_amount = self.total_asset / adj
-                delta_stock = 0.8*available_amount + self.stocks
+                # delta_stock = 0.8*available_amount + self.stocks
+                delta_stock = available_amount + self.stocks
                 self.account += adj * delta_stock * (1 - self.transaction_fee_percent)
                 self.stocks -= delta_stock
             
@@ -109,7 +107,7 @@ class BitcoinEnv:  # custom env
         self.day_npy = self.ary[self.day]
         self.day += 1
         done = self.day == self.max_step  
-        state = np.hstack((self.account * 2 ** -16, self.day_npy * 2 ** -8, self.stocks * 2 ** -12,)).astype(np.float32)
+        state = np.hstack((self.account * 2 ** -16, self.day_npy * 2 ** -8, self.stocks * 2 ** -12,)).astype(np.float64)
 
         next_total_asset = self.account + self.day_npy[3]*self.stocks
         reward = (next_total_asset - self.total_asset) * 2 ** -16  
@@ -145,7 +143,7 @@ class BitcoinEnv:  # custom env
                 if i == 0:
                     init_price = float(state[4])
                 s_tensor = _torch.as_tensor((state,), device=device)
-                print("State 1.....", state.shape)
+                # print("State 1.....", state.shape)
                 action = act(s_tensor)[0]  # not need detach(), because with torch.no_grad() outside
                 a_int = action.argmax(dim=0).cpu().numpy()
                 action = a_int 
@@ -155,7 +153,6 @@ class BitcoinEnv:  # custom env
                 episode_return = total_asset / self.initial_account
                 episode_returns.append(episode_return)
                 btc_return = (state[4]/init_price)
-                print("State 2.....", state.shape)
                 btc_returns.append(btc_return)
                 if done:
                     break

@@ -42,11 +42,11 @@ class ReplayBuffer1:
             other_dim = 1 + 1 + action_dim
 
         # if self.if_gpu:
-        #     self.buf_other = torch.empty((max_len, other_dim), dtype=torch.float32, device=self.device)
-        #     self.buf_state = torch.empty((max_len, state_dim), dtype=torch.float32, device=self.device)
+        #     self.buf_other = torch.empty((max_len, other_dim), dtype=torch.float64, device=self.device)
+        #     self.buf_state = torch.empty((max_len, state_dim), dtype=torch.float64, device=self.device)
         # else:
-        self.buf_other = np.empty((max_len, other_dim), dtype=np.float32)
-        self.buf_state = np.empty((max_len, state_dim), dtype=np.float32)
+        self.buf_other = np.empty((max_len, other_dim), dtype=np.float64)
+        self.buf_state = np.empty((max_len, state_dim), dtype=np.float64)
 
     def append_buffer(self, state, other):  # CPU array to CPU array
         # if self.if_gpu:
@@ -76,8 +76,8 @@ class ReplayBuffer1:
 
     def extend_buffer(self, state, other):  # CPU array to CPU array
         # if self.if_gpu:
-        #     state = torch.as_tensor(state, dtype=torch.float32, device=self.device)
-        #     other = torch.as_tensor(other, dtype=torch.float32, device=self.device)
+        #     state = torch.as_tensor(state, dtype=torch.float64, device=self.device)
+        #     other = torch.as_tensor(other, dtype=torch.float64, device=self.device)
 
         size = len(other)
         next_idx = self.next_idx + size
@@ -98,8 +98,8 @@ class ReplayBuffer1:
 
     def extend_buffer_per(self, state, other):  # CPU array to CPU array
         # if self.if_gpu:
-        #     state = torch.as_tensor(state, dtype=torch.float32, device=self.device)
-        #     other = torch.as_tensor(other, dtype=torch.float32, device=self.device)
+        #     state = torch.as_tensor(state, dtype=torch.float64, device=self.device)
+        #     other = torch.as_tensor(other, dtype=torch.float64, device=self.device)
 
         size = len(other)
         next_idx = self.next_idx + size
@@ -150,7 +150,7 @@ class ReplayBuffer1:
                 r_m_a[:, 2:],
                 self.buf_state[indices],
                 self.buf_state[indices + 1],
-                torch.as_tensor(is_weights, dtype=torch.float32, device=self.device))
+                torch.as_tensor(is_weights, dtype=torch.float64, device=self.device))
 
     def sample_all(self) -> tuple:
         """sample all the data in ReplayBuffer (for on-policy)
@@ -228,8 +228,8 @@ class ReplayBuffer1:
             ary_std = fix_std / div_std
 
         print(f"print_state_norm: state_avg, state_std (fixed)")
-        print(f"avg = np.{repr(ary_avg).replace('=float32', '=np.float32')}")
-        print(f"std = np.{repr(ary_std).replace('=float32', '=np.float32')}")
+        print(f"avg = np.{repr(ary_avg).replace('=float64', '=np.float64')}")
+        print(f"std = np.{repr(ary_std).replace('=float64', '=np.float64')}")
 
     def td_error_update(self, td_error):
         self.tree.td_error_update(td_error)
@@ -269,11 +269,11 @@ class ReplayBuffer:
             other_dim = 1 + 1 + action_dim
 
         if self.if_gpu:
-            self.buf_other = torch.empty((max_len, other_dim), dtype=torch.float32, device=self.device)
-            self.buf_state = torch.empty((max_len, state_dim), dtype=torch.float32, device=self.device)
+            self.buf_other = torch.empty((max_len, other_dim), dtype=torch.float64, device=self.device)
+            self.buf_state = torch.empty((max_len, state_dim), dtype=torch.float64, device=self.device)
         else:
-            self.buf_other = np.empty((max_len, other_dim), dtype=np.float32)
-            self.buf_state = np.empty((max_len, state_dim), dtype=np.float32)
+            self.buf_other = np.empty((max_len, other_dim), dtype=np.float64)
+            self.buf_state = np.empty((max_len, state_dim), dtype=np.float64)
 
     def append_buffer(self, state, other):  # CPU array to CPU array
         if self.if_gpu:
@@ -292,8 +292,8 @@ class ReplayBuffer:
 
     def extend_buffer(self, state, other):  # CPU array to CPU array
         if self.if_gpu:
-            state = torch.as_tensor(state, dtype=torch.float32, device=self.device)
-            other = torch.as_tensor(other, dtype=torch.float32, device=self.device)
+            state = torch.as_tensor(state, dtype=torch.float64, device=self.device)
+            other = torch.as_tensor(other, dtype=torch.float64, device=self.device)
 
         size = len(other)
         next_idx = self.next_idx + size
@@ -338,7 +338,7 @@ class ReplayBuffer:
                     r_m_a[:, 2:],
                     self.buf_state[indices],
                     self.buf_state[indices + 1],
-                    torch.as_tensor(is_weights, dtype=torch.float32, device=self.device))
+                    torch.as_tensor(is_weights, dtype=torch.float64, device=self.device))
 
         else:
             indices = torch.randint(self.now_len - 1, size=(batch_size,), device=self.device) if self.if_gpu \
@@ -426,8 +426,8 @@ class ReplayBuffer:
             ary_std = fix_std / div_std
 
         print(f"print_state_norm: state_avg, state_std (fixed)")
-        print(f"avg = np.{repr(ary_avg).replace('=float32', '=np.float32')}")
-        print(f"std = np.{repr(ary_std).replace('=float32', '=np.float32')}")
+        print(f"avg = np.{repr(ary_avg).replace('=float64', '=np.float64')}")
+        print(f"std = np.{repr(ary_std).replace('=float64', '=np.float64')}")
 
     def td_error_update(self, td_error):
         self.tree.td_error_update(td_error)

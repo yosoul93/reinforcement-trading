@@ -86,7 +86,7 @@ class Arguments:
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.gpu_id)
         torch.set_num_threads(self.num_threads)
-        torch.set_default_dtype(torch.float32)
+        torch.set_default_dtype(torch.float64)
         torch.manual_seed(self.random_seed)
         np.random.seed(self.random_seed)
 

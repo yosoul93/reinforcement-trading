@@ -99,10 +99,10 @@ class FeatureEngineer:
         """
         df = data.copy()
         df["daily_return"] = df.close.pct_change(1)
-        # df['return_lag_1']=df.close.pct_change(2)
-        # df['return_lag_2']=df.close.pct_change(3)
-        # df['return_lag_3']=df.close.pct_change(4)
-        # df['return_lag_4']=df.close.pct_change(5)
+        df['return_lag_1']=df.close.pct_change(2)
+        df['return_lag_2']=df.close.pct_change(3)
+        df['return_lag_3']=df.close.pct_change(4)
+        df['return_lag_4']=df.close.pct_change(5)
         return df
 
     def add_turbulence(self, data):
@@ -127,7 +127,7 @@ class FeatureEngineer:
 
         unique_date = df.date.unique()
         # start after a year
-        start = 252
+        start = 365
         turbulence_index = [0] * start
         # turbulence_index = [0]
         count = 0
@@ -136,7 +136,7 @@ class FeatureEngineer:
             # use one year rolling window to calcualte covariance
             hist_price = df_price_pivot[
                 (df_price_pivot.index < unique_date[i])
-                & (df_price_pivot.index >= unique_date[i - 252])
+                & (df_price_pivot.index >= unique_date[i - 365])
             ]
             # Drop tickers which has number missing values more than the "oldest" ticker
             filtered_hist_price = hist_price.iloc[hist_price.isna().sum().min():].dropna(axis=1)

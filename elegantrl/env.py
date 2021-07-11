@@ -3,18 +3,18 @@ import numpy as np
 import numpy.random as rd
 import gym
 
-gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
 
 """[ElegantRL](https://github.com/AI4Finance-LLC/ElegantRL)"""
 
 
 class PreprocessEnv(gym.Wrapper):  # environment wrapper # todo 2021-03-17
-    def __init__(self, env, if_print=True, data_type=np.float32):
+    def __init__(self, env, if_print=True, data_type=np.float64):
         """Preprocess a standard OpenAI gym environment for RL training.
 
         :param env: a standard OpenAI gym environment, it has env.reset() and env.step()
         :param if_print: print the information of environment. Such as env_name, state_dim ...
-        :param data_type: convert state (sometimes float64) to data_type (float32).
+        :param data_type: convert state (sometimes float64) to data_type (float64).
         """
         self.env = gym.make(env) if isinstance(env, str) else env
         super(PreprocessEnv, self).__init__(self.env)
@@ -38,7 +38,7 @@ class PreprocessEnv(gym.Wrapper):  # environment wrapper # todo 2021-03-17
     def reset_type(self) -> np.ndarray:
         """ state = env.reset()
 
-        convert the data type of state from float64 to float32
+        convert the data type of state from float64 to float64
 
         :return array state: state.shape==(state_dim, )
         """
@@ -48,7 +48,7 @@ class PreprocessEnv(gym.Wrapper):  # environment wrapper # todo 2021-03-17
     def reset_norm(self) -> np.ndarray:
         """ state = env.reset()
 
-        convert the data type of state from float64 to float32
+        convert the data type of state from float64 to float64
         do normalization on state
 
         :return array state: state.shape==(state_dim, )
@@ -60,7 +60,7 @@ class PreprocessEnv(gym.Wrapper):  # environment wrapper # todo 2021-03-17
     def step_type(self, action) -> (np.ndarray, float, bool, dict):
         """ next_state, reward, done = env.step(action)
 
-        convert the data type of state from float64 to float32,
+        convert the data type of state from float64 to float64,
         adjust action range to (-action_max, +action_max)
 
         :return array state:  state.shape==(state_dim, )
@@ -74,7 +74,7 @@ class PreprocessEnv(gym.Wrapper):  # environment wrapper # todo 2021-03-17
     def step_norm(self, action) -> (np.ndarray, float, bool, dict):
         """ next_state, reward, done = env.step(action)
 
-        convert the data type of state from float64 to float32,
+        convert the data type of state from float64 to float64,
         adjust action range to (-action_max, +action_max)
         do normalization on state
 
@@ -123,9 +123,9 @@ def get_avg_std__for_state_norm(env_name) -> (np.ndarray, np.ndarray):
                         0.11752805, 0.14116005, 0.13839757, 0.07760469])
     elif env_name == 'ReacherBulletEnv-v0':
         avg = np.array([0.03149641, 0.0485873, -0.04949671, -0.06938662, -0.14157104,
-                        0.02433294, -0.09097818, 0.4405931, 0.10299437], dtype=np.float32)
+                        0.02433294, -0.09097818, 0.4405931, 0.10299437], dtype=np.float64)
         std = np.array([0.12277275, 0.1347579, 0.14567468, 0.14747661, 0.51311225,
-                        0.5199606, 0.2710207, 0.48395795, 0.40876198], dtype=np.float32)
+                        0.5199606, 0.2710207, 0.48395795, 0.40876198], dtype=np.float64)
     elif env_name == 'AntBulletEnv-v0':
         avg = np.array([-1.4400886e-01, -4.5074993e-01, 8.5741436e-01, 4.4249415e-01,
                         -3.1593361e-01, -3.4174921e-03, -6.1666980e-02, -4.3752361e-03,
@@ -134,13 +134,13 @@ def get_avg_std__for_state_norm(env_name) -> (np.ndarray, np.ndarray):
                         -2.5761038e-01, 5.9789192e-04, -2.1119279e-01, -6.6801407e-03,
                         2.5196713e-01, 1.6556121e-03, 1.0365561e-01, 1.0219718e-02,
                         5.8209229e-01, 7.7563477e-01, 4.8815918e-01, 4.2498779e-01],
-                       dtype=np.float32)
+                       dtype=np.float64)
         std = np.array([0.04128463, 0.19463477, 0.15422264, 0.16463493, 0.16640785,
                         0.08266512, 0.10606721, 0.07636797, 0.7229637, 0.52585346,
                         0.42947173, 0.20228386, 0.44787514, 0.33257666, 0.6440182,
                         0.38659114, 0.6644085, 0.5352245, 0.45194066, 0.20750992,
                         0.4599643, 0.3846344, 0.651452, 0.39733195, 0.49320385,
-                        0.41713253, 0.49984455, 0.4943505], dtype=np.float32)
+                        0.41713253, 0.49984455, 0.4943505], dtype=np.float64)
     elif env_name == 'HumanoidBulletEnv-v0':
         avg = np.array([3.01311314e-01, 3.94672394e-01, 5.94191194e-01, 9.21207070e-02,
                         8.33693743e-02, -2.25237925e-02, -1.47895187e-01, 1.78729534e-01,
@@ -153,7 +153,7 @@ def get_avg_std__for_state_norm(env_name) -> (np.ndarray, np.ndarray):
                         7.14308694e-02, -3.49211530e-03, 4.82423425e-01, -7.32147601e-05,
                         -5.24461150e-01, -2.18287203e-03, -1.47674218e-01, -3.43166990e-04,
                         8.65057111e-02, -2.88956566e-03, 6.23931885e-01, 5.93078613e-01],
-                       dtype=np.float32)
+                       dtype=np.float64)
         std = np.array([0.06094389, 0.48514748, 0.4642684, 0.11566383, 0.12077816,
                         0.1104386, 0.3986176, 0.3980264, 0.35443318, 0.3776695,
                         0.49051976, 0.30215684, 0.615806, 0.40625623, 0.6169094,
@@ -162,7 +162,7 @@ def get_avg_std__for_state_norm(env_name) -> (np.ndarray, np.ndarray):
                         0.4983718, 0.07819878, 0.29232258, 0.19291587, 0.39967823,
                         0.45776755, 0.19698475, 0.48533973, 0.2996624, 0.59454864,
                         0.6142501, 0.38873306, 0.19519839, 0.47335255, 0.29171264,
-                        0.690289, 0.61651593, 0.48313695, 0.4909233], dtype=np.float32)
+                        0.690289, 0.61651593, 0.48313695, 0.4909233], dtype=np.float64)
     # elif env_name == 'MinitaurBulletEnv-v0': # need check
     #     # avg = np.array([0.90172989, 1.54730119, 1.24560906, 1.97365306, 1.9413892,
     #     #                 1.03866835, 1.69646277, 1.18655352, -0.45842347, 0.17845232,
@@ -206,7 +206,7 @@ def get_gym_env_info(env, if_print) -> (str, int, int, int, int, bool, float):
     :env: a standard OpenAI gym environment, it has env.reset() and env.step()
     :bool if_print: print the information of environment. Such as env_name, state_dim ...
     """
-    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
     assert isinstance(env, gym.Env)
 
     env_name = env.unwrapped.spec.id
@@ -276,7 +276,7 @@ class FinanceStockEnv:  # 2021-02-02
         self.initial_account__reset = self.initial_account
         self.account = self.initial_account__reset
         self.day_npy = self.ary[self.day]
-        self.stocks = np.zeros(self.stock_dim, dtype=np.float32)  # multi-stack
+        self.stocks = np.zeros(self.stock_dim, dtype=np.float64)  # multi-stack
 
         self.total_asset = self.account + (self.day_npy[:self.stock_dim] * self.stocks).sum()
         self.episode_return = 0.0  # Compatibility for ElegantRL 2020-12-21
@@ -293,7 +293,7 @@ class FinanceStockEnv:  # 2021-02-02
     def reset(self) -> np.ndarray:
         self.initial_account__reset = self.initial_account * rd.uniform(0.9, 1.1)  # reset()
         self.account = self.initial_account__reset
-        self.stocks = np.zeros(self.stock_dim, dtype=np.float32)
+        self.stocks = np.zeros(self.stock_dim, dtype=np.float64)
         self.total_asset = self.account + (self.day_npy[:self.stock_dim] * self.stocks).sum()
         # total_asset = account + (adjcp * stocks).sum()
 
@@ -303,7 +303,7 @@ class FinanceStockEnv:  # 2021-02-02
 
         state = np.hstack((self.account * 2 ** -16,
                            self.day_npy * 2 ** -8,
-                           self.stocks * 2 ** -12,), ).astype(np.float32)
+                           self.stocks * 2 ** -12,), ).astype(np.float64)
         return state
 
     def step(self, action) -> (np.ndarray, float, bool, None):
@@ -330,7 +330,7 @@ class FinanceStockEnv:  # 2021-02-02
 
         state = np.hstack((self.account * 2 ** -16,
                            self.day_npy * 2 ** -8,
-                           self.stocks * 2 ** -12,), ).astype(np.float32)
+                           self.stocks * 2 ** -12,), ).astype(np.float64)
 
         next_total_asset = self.account + (self.day_npy[:self.stock_dim] * self.stocks).sum()
         reward = (next_total_asset - self.total_asset) * 2 ** -16  # notice scaling!
@@ -349,7 +349,7 @@ class FinanceStockEnv:  # 2021-02-02
     @staticmethod
     def load_training_data_for_multi_stock(data_path='./FinanceStock.npy'):  # need more independent
         if os.path.exists(data_path):
-            data_ary = np.load(data_path).astype(np.float32)
+            data_ary = np.load(data_path).astype(np.float64)
             assert data_ary.shape[1] == 5 * 30
             return data_ary
         else:
@@ -389,7 +389,7 @@ class FinanceStockEnv:  # 2021-02-02
         # 30  cci     9
         # 30  adx     10
         # '''
-        # data_ary = np.empty((train_ary.shape[0], 5, 30), dtype=np.float32)
+        # data_ary = np.empty((train_ary.shape[0], 5, 30), dtype=np.float64)
         # data_ary[:, 0] = train_ary[:, :, 2]  # adjcp
         # data_ary[:, 1] = train_ary[:, :, 7]  # macd
         # data_ary[:, 2] = train_ary[:, :, 8]  # rsi
@@ -399,7 +399,7 @@ class FinanceStockEnv:  # 2021-02-02
         # data_ary = data_ary.reshape((-1, 5 * 30))
         #
         # os.makedirs(data_path[:data_path.rfind('/')])
-        # np.save(data_path, data_ary.astype(np.float16))  # save as float16 (0.5 MB), float32 (1.0 MB)
+        # np.save(data_path, data_ary.astype(np.float16))  # save as float16 (0.5 MB), float64 (1.0 MB)
         # print('| FinanceStockEnv(): save in:', data_path)
         # return data_ary
 
@@ -460,7 +460,7 @@ def fix_car_racing_env(env, frame_num=3, action_num=3) -> gym.Wrapper:  # 2020-1
 
     def rgb2gray(rgb):
         # # rgb image -> gray [0, 1]
-        # gray = np.dot(rgb[..., :], [0.299, 0.587, 0.114]).astype(np.float32)
+        # gray = np.dot(rgb[..., :], [0.299, 0.587, 0.114]).astype(np.float64)
         # if norm:
         #     # normalize
         #     gray = gray / 128. - 1.
@@ -469,7 +469,7 @@ def fix_car_racing_env(env, frame_num=3, action_num=3) -> gym.Wrapper:  # 2020-1
         state = rgb[:, :, 1]  # show green
         state[86:, 24:36] = rgb[86:, 24:36, 2]  # show red
         state[86:, 72:] = rgb[86:, 72:, 0]  # show blue
-        state = (state - 128).astype(np.float32) / 128.
+        state = (state - 128).astype(np.float64) / 128.
         return state
 
     def decorator_step(env_step):
@@ -524,7 +524,7 @@ def fix_car_racing_env(env, frame_num=3, action_num=3) -> gym.Wrapper:  # 2020-1
 
 def render__car_racing():
     import gym  # gym of OpenAI is not necessary for ElegantRL (even RL)
-    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
     env = gym.make('CarRacing-v0')
     env = fix_car_racing_env(env)
 
@@ -588,7 +588,7 @@ def get_video_to_watch_gym_render():
         # cv2.imshow('', frame)
         # cv2.waitKey(1)
 
-        s_tensor = torch.as_tensor((state,), dtype=torch.float32, device=device)
+        s_tensor = torch.as_tensor((state,), dtype=torch.float64, device=device)
         a_tensor = agent.act(s_tensor)
         action = a_tensor.detach().cpu().numpy()[0]  # if use 'with torch.no_grad()', then '.detach()' not need.
         # action = gym_env.action_space.sample()

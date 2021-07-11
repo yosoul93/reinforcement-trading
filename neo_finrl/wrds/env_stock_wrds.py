@@ -27,7 +27,7 @@ class StockTradingEnv():
         self.account = self.initial_account__reset
         self.day_npy = self.ary[self.day]
         self.day_price = self.day_npy[[12*i+3 for i in range(self.stock_dim)]]
-        self.stocks = np.zeros(self.stock_dim, dtype=np.float32)  # multi-stack
+        self.stocks = np.zeros(self.stock_dim, dtype=np.float64)  # multi-stack
 
         self.total_asset = self.account + (self.day_price * self.stocks).sum()
         self.episode_return = 0.0  # Compatibility for ElegantRL 2020-12-21
@@ -45,7 +45,7 @@ class StockTradingEnv():
         self.account = self.initial_account
         self.day = 0
         self.day_npy = self.ary[self.day]
-        self.stocks = np.zeros(self.stock_dim, dtype=np.float32)
+        self.stocks = np.zeros(self.stock_dim, dtype=np.float64)
         self.day_price = self.day_npy[[12*i+3 for i in range(self.stock_dim)]]
         self.total_asset = self.account + (self.day_price * self.stocks).sum()
         # total_asset = account + (adjcp * stocks).sum()
@@ -54,7 +54,7 @@ class StockTradingEnv():
 
         state = np.hstack((self.account * 2 ** -16,
                            self.day_npy * 2 ** -8,
-                           self.stocks * 2 ** -12,), ).astype(np.float32)
+                           self.stocks * 2 ** -12,), ).astype(np.float64)
         return state
 
     def step(self, action):
@@ -82,7 +82,7 @@ class StockTradingEnv():
 
         state = np.hstack((self.account * 2 ** -16,
                            self.day_npy * 2 ** -8,
-                           self.stocks * 2 ** -12,), ).astype(np.float32)
+                           self.stocks * 2 ** -12,), ).astype(np.float64)
         next_total_asset = self.account + (self.day_price * self.stocks).sum()
         reward = (next_total_asset - self.total_asset) * 2 ** -16  # notice scaling!
         self.total_asset = next_total_asset

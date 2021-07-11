@@ -4,7 +4,7 @@ from elegantrl.run import Arguments, train_and_evaluate, train_and_evaluate_mp
 
 """[ElegantRL](https://github.com/AI4Finance-LLC/ElegantRL)"""
 
-gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
 
 
 def demo1_discrete_action_space():
@@ -306,7 +306,7 @@ def demo4_bullet_mujoco_on_policy():
 #     ][0]
 #
 #     import gym  # gym of OpenAI is not necessary for ElegantRL (even RL)
-#     gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+#     gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
 #     args.if_break_early = True  # break training if reach the target reward (total return of an episode)
 #     args.if_remove_history = True  # delete the historical directory
 #
@@ -381,7 +381,7 @@ def demo4_bullet_mujoco_on_policy():
 #
 #     '''DEMO 4: Fix gym Box2D env CarRacing-v0 (pixel-level 2D-state, continuous action) using PPO'''
 #     import gym  # gym of OpenAI is not necessary for ElegantRL (even RL)
-#     gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+#     gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
 #     env = gym.make('CarRacing-v0')
 #     env = fix_car_racing_env(env)
 #

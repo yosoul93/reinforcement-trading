@@ -13,7 +13,7 @@ from elegantrl.run import *
 def run__demo():
     import gym
     import neo_finrl
-    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float32'
+    gym.logger.set_level(40)  # Block warning: 'WARN: Box bound precision lowered by casting to float64'
 
     """DEMO 3: Custom Continuous action env: FinanceStock-v1"""
     args = Arguments(if_on_policy=True)
